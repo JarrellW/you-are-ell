@@ -4,15 +4,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import controllers.IdController;
 import controllers.MessageController;
+import controllers.TransactionController;
+import models.Id;
+import models.Message;
 import youareell.YouAreEll;
 
 // Simple Shell is a Console view for youareell.YouAreEll.
 public class SimpleShell {
+
+
+    public SimpleShell() throws IOException {
+    }
 
 
     public static void prettyPrint(String output) {
@@ -21,8 +30,10 @@ public class SimpleShell {
     }
     public static void main(String[] args) throws java.io.IOException {
 
-        YouAreEll webber = new YouAreEll(new MessageController(), new IdController());
-        
+        YouAreEll webber = new YouAreEll(new MessageController(), new IdController(), new TransactionController());
+        IdController idController = new IdController();
+        MessageController messageController = new MessageController();
+
         String commandLine;
         BufferedReader console = new BufferedReader
                 (new InputStreamReader(System.in));
@@ -47,6 +58,35 @@ public class SimpleShell {
                 System.out.println("bye!");
                 break;
             }
+            if(commandLine.equalsIgnoreCase("CreateId")){
+                System.out.println("whats your name? ");
+                String idName = console.readLine();
+                System.out.println("whats your github? ");
+                String github = console.readLine();
+                Id id = new Id(idName, github, "one");
+                idController.postId(id);
+                System.out.println("Id created successfully");
+                continue;
+            }
+            if(commandLine.equalsIgnoreCase("GetMessages")){
+
+            }
+            if (commandLine.equalsIgnoreCase("SendMessage")){
+                System.out.println("Who would you like to send this to?");
+                String toId = console.readLine();
+                System.out.println("What is your message? ");
+                String sentMessage = console.readLine();
+                Message message = new Message(idController.findByGitId("JayW").getUserID(),toId,sentMessage);
+                messageController.postMessage(idController.findByGitId("JayW"), idController.findByGitId(toId), message);
+
+
+
+
+
+
+                System.out.println("Message sent Successfully");
+                continue;
+            }
 
             //loop through to see if parsing worked
             for (int i = 0; i < commands.length; i++) {
@@ -67,19 +107,29 @@ public class SimpleShell {
                 // Specific Commands.
 
                 // ids
-                if (list.contains("ids")) {
-                    String results = webber.get_ids();
-                    SimpleShell.prettyPrint(results);
-                    continue;
-                }
-
-                // messages
-                if (list.contains("messages")) {
-                    String results = webber.get_messages();
-                    SimpleShell.prettyPrint(results);
-                    continue;
-                }
+//                if (list.contains("ids")) {
+//                    String results = webber.getids();
+//                    SimpleShell.prettyPrint(results);
+//                    continue;
+//                }
+//
+//                // messages
+//                if (list.contains("messages")) {
+//                    String results = webber.get_messages();
+//                    SimpleShell.prettyPrint(results);
+//                    continue;
+//                }
                 // you need to add a bunch more.
+//                if (list.contains("messages") && list.size() == 2) {
+//                    IdController j = new IdController();
+//                    Id foundId = j.findById(list.get(idController.findByGitId("")));
+//                    if (foundId == null) {
+//                        continue;
+//                    }
+//                    MessageController m = new MessageController();
+//                    SimpleShell.prettyPrint(m.getMessagesForId(foundId));
+//                    continue;
+//                }
 
                 //!! command returns the last command in history
                 if (list.get(list.size() - 1).equals("!!")) {
